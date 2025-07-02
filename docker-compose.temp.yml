@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=TuPasswordSeguro123
+      - MSSQL_DATABASE=PruebaMicroServicios
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - SQL_SERVER_HOST=sqlserver
+      - SQL_SERVER_PORT=1433
+      - SQL_SERVER_DATABASE=PruebaMicroServicios
+      - SQL_SERVER_USER=sa
+      - SQL_SERVER_PASSWORD=TuPasswordSeguro123
+      - JWT_SECRET_KEY=tu-clave-secreta-de-jwt
+    depends_on:
+      - sqlserver
+
+volumes:
+  sqlserver_data:
