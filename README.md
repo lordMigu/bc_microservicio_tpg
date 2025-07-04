@@ -1,12 +1,32 @@
-# Microservicio de Autenticación y Consulta
+# Microservicio de Autenticación y Consultas
 
-Este microservicio expone una API REST para consumir los siguientes servicios:
+Este es un microservicio desarrollado con Flask que proporciona autenticación y consultas a una base de datos SAP ASE 16.1.
 
-- Consultas
-- Trazabilidad
-- Servicios complementarios
-- Estadísticas
-- Notificaciones
+## Tecnologías Utilizadas
+
+- **Backend**: Python 3.11 con Flask
+- **Base de Datos**: SAP ASE 16.1
+- **Driver**: FreeTDS con soporte para TDS 4.2
+- **Contenedorización**: Docker
+- **ODBC**: unixODBC
+
+## Configuración del Entorno
+
+### Variables de Entorno
+
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```env
+# Configuración de la aplicación
+FLASK_APP=app.py
+FLASK_ENV=development
+
+# Configuración de SAP ASE 16.1
+SYBASE_DATABASE=PruebaMicroServicios
+SYBASE_USER=sa
+SYBASE_PASSWORD=12345678
+SYBASE_PORT=5000
+```
 - Información financiera
 
 ## Requisitos Previos
@@ -42,8 +62,6 @@ SQL_SERVER_HOST=host.docker.internal # O la IP de tu host si Docker no puede res
 SQL_DATABASE=NombreDeTuBD
 SQL_USER=tu_usuario
 SQL_PASSWORD=tu_contraseña
-#JWT es opcional
-JWT_SECRET_KEY=una_clave_secreta_muy_segura
 ```
 
 **Para Sybase:**
@@ -53,8 +71,6 @@ SYBASE_DB=NombreDeTuBD
 SYBASE_USER=tu_usuario
 SYBASE_PASSWORD=tu_contraseña
 SYBASE_PORT=5000
-#JWT es opcional
-JWT_SECRET_KEY=una_clave_secreta_muy_segura
 ```
 
 ### 3. Construir y Ejecutar el Contenedor
@@ -70,48 +86,40 @@ Este comando construirá la imagen de Docker y levantará el contenedor. La apli
 ---
 
 ## Consumir la API con Postman
-# Para las rutas de query debes usar los siguientes endpoints de la carpeta /query con los siguientes parámetros que coinciden con la base de datos de prueba:
 
-1. /query/booking/{booking_id}
+### Especificaciones Técnicas
 
-Parámetros:
-- booking_id: BK-001
-- ruc_cliente: 12345678901
+- **Base de Datos**: SAP ASE 16.1
+- **Backend**: Python 3.11 con Flask
+- **Driver**: FreeTDS con soporte para TDS 4.2
+- **Interfaz**: ODBC a través de unixODBC
 
-2. /query/container/import/{ruc_cliente}/{fecha_inicio}/{fecha_fin}
+### Tabla de Endpoints
 
-Parámetros:
-- ruc_cliente: 12345678901
-- fecha_inicio: 2023-01-01
-- fecha_fin: 2023-12-31
+| # | Método | Endpoint | Parámetros | Valores de Ejemplo |
+|---|--------|----------|------------|-------------------|
+| 1 | GET | `/query/booking/{booking_id}` | `booking_id`: Número de booking<br>`ruc_cliente`: RUC del cliente | `BK-001`<br>`12345678901` |
+| 2 | GET | `/query/container/import` | `numero_contenedor`: Número de contenedor<br>`ruc_cliente`: RUC del cliente | `CONT-IMPO-001`<br>`12345678901` |
+| 3 | GET | `/query/container/export/{ruc_cliente}/{fecha_inicio}/{fecha_fin}` | `ruc_cliente`: RUC del cliente<br>`fecha_inicio`: Fecha de inicio (YYYY-MM-DD)<br>`fecha_fin`: Fecha de fin (YYYY-MM-DD) | `12345678901`<br>`2023-01-01`<br>`2023-12-31` |
+| 4 | GET | `/query/bl-loose-cargo/{numero_bl}/{ruc_cliente}` | `numero_bl`: Número de BL<br>`ruc_cliente`: RUC del cliente | `BL-CS-001`<br>`12345678901` |
+| 5 | GET | `/query/aforo/bl/{numero_bl}/{ruc_cliente}` | `numero_bl`: Número de BL<br>`ruc_cliente`: RUC del cliente | `BL-CS-001`<br>`12345678901` |
+| 6 | GET | `/query/aforo/container/{contenedor_id}/{ruc_cliente}` | `contenedor_id`: Número de contenedor<br>`ruc_cliente`: RUC del cliente | `CONT-IMPO-001`<br>`12345678901` |
+| 7 | GET | `/query/inspection/booking/{booking_id}/{ruc_cliente}` | `booking_id`: Número de booking<br>`ruc_cliente`: RUC del cliente | `BK-001`<br>`12345678901` |
 
-3. /query/container/export/{ruc_cliente}/{fecha_inicio}/{fecha_fin}
+### Configuración de Conexión a SAP ASE 16.1
 
-Parámetros:
-- ruc_cliente: 12345678901
-- fecha_inicio: 2023-01-01
-- fecha_fin: 2023-12-31   
+La conexión a SAP ASE 16.1 se realiza a través de FreeTDS con la siguiente configuración:
 
-4. /query/bl-loose-cargo/{numero_bl}/{ruc_cliente}
+```ini
+[SAPASE_HOST]
+    host = host.docker.internal
+    port = 5000
+    tds version = 4.2
+```
 
-Parámetros:
-- numero_bl: BL-CS-001
-- ruc_cliente: 12345678901
+### Requisitos del Sistema
 
-5. /query/aforo/bl/{numero_bl}/{ruc_cliente}
-
-Parámetros:
-- numero_bl: BL-CS-001
-- ruc_cliente: 12345678901
-
-6. /query/aforo/container/{contenedor_id}/{ruc_cliente}
-
-Parámetros:
-- contenedor_id: CONT-IMPO-001
-- ruc_cliente: 12345678901  
-
-7. /query/inspection/booking/{booking_id}/{ruc_cliente}
-
-Parámetros:
-- booking_id: BK-001
-- ruc_cliente: 12345678901
+- Docker 20.10+
+- Docker Compose 2.0+
+- Acceso a un servidor SAP ASE 16.1
+- Mínimo 2GB de RAM asignados a Docker
