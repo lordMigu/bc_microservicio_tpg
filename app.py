@@ -1,5 +1,5 @@
-# Archivo principal de la aplicación Flask
-# Configura y registra todos los servicios de la aplicación
+"""Archivo principal de la aplicación Flask
+Configura y registra todos los servicios de la aplicación"""
 
 from flask import Flask
 from flask_jwt_extended import JWTManager
@@ -11,7 +11,7 @@ def create_app():
     Configura la aplicación y registra todos los blueprints
     """
     app = Flask(__name__)
-    # Carga la configuración desde el archivo config.py
+    # Carga la configuración desde el archivo config.py y lo hace global para que pueda ser accedido desde cualquier parte de la aplicación
     app.config.from_object(Config)
     # Inicializa el manejador JWT para la autenticación
     jwt = JWTManager(app)

@@ -50,16 +50,27 @@ def get_booking_info():
 def get_container_import_info():
     """
     2. Consulta de contenedor Importación
+    
+    Esta consulta devuelve todos los contenedores de importación que coinciden con los parámetros de
+    búsqueda: ruc_cliente, fecha_inicio y fecha_fin.
+    
+    Parámetros:
+    - numero_contenedor: El número del contenedor que se desea buscar.
+    - ruc_cliente: El RUC del cliente que realizó el booking.
     """
+    numero_contenedor = request.args.get('numero_contenedor')
     ruc_cliente = request.args.get('ruc_cliente')
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
+    
+    # Si no se proporcionan todos los parámetros, se retorna un error con codigo 400 que indica que faltan parámetros requeridos
+    if not all([numero_contenedor, ruc_cliente]):
+        return jsonify({"error": "Faltan parámetros requeridos: numero_contenedor, ruc_cliente"}), 400
 
-    if not all([ruc_cliente, fecha_inicio, fecha_fin]):
-        return jsonify({"error": "Faltan parámetros requeridos: ruc_cliente, fecha_inicio, fecha_fin"}), 400
+    # Se ejecuta el procedimiento almacenado sp_consulta_contenedor_impo con los parámetros proporcionados
+    # single_row=False indica que se espera una lista de resultados
+    data, error = execute_sp('sp_consulta_contenedor_impo', (numero_contenedor, ruc_cliente), single_row=False)
 
-    data, error = execute_sp('sp_consulta_contenedores_importacion', (ruc_cliente, fecha_inicio, fecha_fin), single_row=False)
-
+    # Si ocurre un error, se retorna un error con codigo 404 si el error indica que no se encontraron datos,
+    # de lo contrario se retorna un error con codigo 500
     if error:
         return jsonify({"message": error}), 404 if "No se encontraron datos" in error else 500
     return jsonify(data)
@@ -73,6 +84,7 @@ def get_container_export_info():
     fecha_inicio = request.args.get('fecha_inicio')
     fecha_fin = request.args.get('fecha_fin')
 
+    # Si no se proporcionan todos los parámetros, se retorna un error con codigo 400 que indica que faltan parámetros requeridos
     if not all([ruc_cliente, fecha_inicio, fecha_fin]):
         return jsonify({"error": "Faltan parámetros requeridos: ruc_cliente, fecha_inicio, fecha_fin"}), 400
 
