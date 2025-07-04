@@ -1,8 +1,7 @@
 from flask import Blueprint, jsonify, request
-# from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from database.database import get_db
 
-# Blueprint para consultas generales
 query_bp = Blueprint('query_bp', __name__)
 
 def execute_sp(sp_name, params, single_row=True):
@@ -31,7 +30,6 @@ def execute_sp(sp_name, params, single_row=True):
         return None, str(e)
 
 @query_bp.route('/booking', methods=['GET'])
-# @jwt_required()
 def get_booking_info():
     """
     1. Consulta de número de Booking
@@ -49,7 +47,6 @@ def get_booking_info():
     return jsonify(data)
 
 @query_bp.route('/container/import', methods=['GET'])
-# @jwt_required()
 def get_container_import_info():
     """
     2. Consulta de contenedor Importación
@@ -68,7 +65,6 @@ def get_container_import_info():
     return jsonify(data)
 
 @query_bp.route('/container/export', methods=['GET'])
-# @jwt_required()
 def get_container_export_info():
     """
     3. Consulta de contenedor Exportación
@@ -87,7 +83,6 @@ def get_container_export_info():
     return jsonify(data)
 
 @query_bp.route('/bl-loose-cargo', methods=['GET'])
-# @jwt_required()
 def get_bl_info():
     """
     4. Consulta de BL de carga suelta (BL hijo)
@@ -105,7 +100,6 @@ def get_bl_info():
     return jsonify(data)
 
 @query_bp.route('/aforo/bl', methods=['GET'])
-# @jwt_required()
 def get_aforo_bl_info():
     """
     5.a. Consulta de Aforo por BL
@@ -123,7 +117,6 @@ def get_aforo_bl_info():
     return jsonify(data)
 
 @query_bp.route('/aforo/container', methods=['GET'])
-# @jwt_required()
 def get_aforo_container_info():
     """
     5.b. Consulta de Aforo por Contenedor
@@ -141,7 +134,6 @@ def get_aforo_container_info():
     return jsonify(data)
 
 @query_bp.route('/inspection/booking', methods=['GET'])
-# @jwt_required()
 def get_inspection_booking_info():
     """
     6.a. Consulta de Inspecciones por Booking
@@ -159,7 +151,6 @@ def get_inspection_booking_info():
     return jsonify(data)
 
 @query_bp.route('/inspection/container', methods=['GET'])
-# @jwt_required()
 def get_inspection_container_info():
     """
     6.b. Consulta de Inspecciones por Contenedor
@@ -177,7 +168,6 @@ def get_inspection_container_info():
     return jsonify(data)
 
 @query_bp.route('/tally', methods=['GET'])
-# @jwt_required()
 def get_tally_info():
     """
     7. Consulta de Tarjas (Carga suelta)

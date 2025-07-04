@@ -1,10 +1,10 @@
-version: '3.8'
+version: '3.8' # Indica la versión de Docker Compose
 
-services:
-  app:
-    build: .
+services: # Define los servicios que se van a levantar
+  app: # Define el servicio de la aplicación
+    build: . # Indica el directorio donde se encuentra el Dockerfile
     ports:
-      - "5000:5000"
+      - "5000:5000" # Mapea el puerto 5000 del contenedor al puerto 5000 del host
     env_file:
-      - .env
+      - .env # Indica el archivo de variables de entorno
 

@@ -19,8 +19,9 @@ RUN apt-get update && apt-get install -y curl gnupg && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# --- DRIVER PARA SYBASE (ALTERNATIVA) ---
-# Descomentar esta línea para usar FreeTDS (compatible con Sybase) y comentar las de SQL Server
+# --- DRIVER PARA SYBASE SAP ASE 16 (ALTERNATIVA) ---
+# Para conectar a Sybase, comenta el bloque anterior de SQL Server y descomenta la siguiente línea.
+# Esto instalará FreeTDS, un driver compatible con Sybase.
 # RUN apt-get update && apt-get install -y freetds-dev freetds-bin unixodbc-dev
 
 # Instalación de Dependencias de Python

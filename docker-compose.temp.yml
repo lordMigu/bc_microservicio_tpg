@@ -1,3 +1,20 @@
+# -----------------------------------------------------------------------------
+# PLANTILLA DE DOCKER COMPOSE PARA DESARROLLO
+# -----------------------------------------------------------------------------
+#
+# Propósito: Este archivo sirve como una plantilla para levantar un entorno
+# de desarrollo completo y autocontenido, que incluye tanto el servicio de la
+# aplicación (`app`) como una base de datos (`sqlserver`).
+#
+# Uso:
+# 1. Renombra este archivo a `docker-compose.yml` para que sea el archivo por
+#    defecto que Docker Compose utiliza.
+# 2. O ejecútalo directamente con el comando:
+#    `docker-compose -f docker-compose.temp.yml up`
+#
+# Nota: El `docker-compose.yml` principal solo levanta la aplicación y espera
+# que la base de datos se conecte externamente.
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest

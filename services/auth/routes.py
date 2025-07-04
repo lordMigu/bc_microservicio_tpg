@@ -3,6 +3,13 @@ from flask_jwt_extended import create_access_token, jwt_required
 from database.database import get_db
 from database.models import Usuario
 
+# Para consumir los siguientes rutas con los siguientes endpoints:
+# /auth/login
+# /auth/register
+# /auth/activate-account
+# /auth/deactivate-account
+# /auth/change-password
+
 # Documento de referencia: Inicio de sesión , Administración de Cuenta 
 auth_bp = Blueprint('auth_bp', __name__)
 

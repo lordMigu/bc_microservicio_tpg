@@ -18,3 +18,14 @@ class Config:
 
     # Configuración de JWT
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'tu-clave-secreta-de-jwt')
+
+    # Configuración de Sybase
+    # SYBASE_HOST = os.environ.get('SYBASE_HOST', 'localhost')
+    # SYBASE_PORT = os.environ.get('SYBASE_PORT', '5000')
+    # SYBASE_DATABASE = os.environ.get('SYBASE_DATABASE', 'mi_base_de_datos')
+    # SYBASE_USER = os.environ.get('SYBASE_USER', 'sa')
+    # SYBASE_PASSWORD = os.environ.get('SYBASE_PASSWORD', '')
+    
+    # Cadena de conexión para Sybase
+    # SYBASE_CONNECTION_STRING = f"mssql+pyodbc://{SYBASE_USER}:{SYBASE_PASSWORD}@{SYBASE_HOST}:{SYBASE_PORT}/{SYBASE_DATABASE}?driver=FreeTDS"
+    
