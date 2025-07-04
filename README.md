@@ -1,104 +1,163 @@
-# Sistema de Autenticación JWT con SQL Server
+# Sistema de Autenticación JWT con Conexión a Base de Datos
 
-Este proyecto es una aplicación Flask que implementa un sistema de autenticación usando JWT (JSON Web Tokens) y SQL Server como base de datos.
+Este proyecto es una aplicación Flask que implementa un sistema de autenticación usando JWT (JSON Web Tokens) y está configurado para conectarse a **SQL Server**, con una opción para migrar a **Sybase**.
 
 ---
 
 ## Requisitos Previos
 
-Para levantar y ejecutar este servicio, necesitarás:
-
-- **Docker Desktop** (o Docker Engine): Para ejecutar los servicios en contenedores.
-- **Docker Compose**: Para gestionar múltiples contenedores.
-- **Git**: Para clonar el repositorio (si lo obtienes desde un repositorio).
+- **Docker Desktop** (o Docker Engine)
+- **Docker Compose**
+- **Git** (opcional, para clonar)
 
 ---
 
-## Estructura del Proyecto
+## Instalación y Ejecución (con SQL Server)
 
-```
+1.  **Configurar variables de entorno**:
+    Crea un archivo `.env` con las credenciales de SQL Server:
+    ```bash
+    SQL_SERVER_HOST=host.docker.internal # O la IP del host
+    SQL_DATABASE=PruebaMicroServicios
+    SQL_USER=tu_usuario
+    SQL_PASSWORD=tu_contraseña
+    ```
 
-auth_login_docker-main/
-├── app.py
-├── config.py
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
-├── .env
-└── README.md
+2.  **Construir y levantar los servicios**:
+    ```bash
+    docker-compose up --build
+    ```
 
-````
+La aplicación estará disponible en `http://localhost:5000`.
 
 ---
 
-## Preparación de la Base de Datos SQL Server
+## Gestión de la Imagen en Docker Hub y Ejecución
 
-## Instalación y Ejecución
+Esta sección explica cómo subir la imagen de la aplicación a Docker Hub y cómo ejecutarla directamente, pasando las variables de entorno desde la terminal.
 
-Para ejecutar la aplicación usando Docker Compose, no es necesario clonar el repositorio. Sin embargo, si deseas modificar el código fuente o desarrollar nuevas funcionalidades, sigue estos pasos:
+### 1. Subir la imagen a Docker Hub
 
-1. Clona el repositorio:
+Para compartir la imagen de tu aplicación, puedes subirla a un registro como Docker Hub.
+
+**a. Inicia sesión en Docker Hub:**
 ```bash
-git clone [url_del_repositorio]
-cd auth_login_docker-main
+docker login
+```
+Introduce tu nombre de usuario y contraseña de Docker Hub.
+
+**b. Construye y etiqueta la imagen:**
+Primero, construye la imagen con `docker-compose` y luego etiquétala con el formato de Docker Hub.
+
+```bash
+# 1. Construye la imagen usando docker-compose
+docker-compose build
+
+# 2. Etiqueta la imagen (reemplaza <usuario_hub> con tu usuario de Docker Hub)
+# El nombre 'auth_login_docker-main_app' se basa en '<nombre_directorio>_<nombre_servicio>'
+docker tag auth_login_docker-main_app <usuario_hub>/auth-app:1.0
 ```
 
-2. Configura las variables de entorno:
-Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+**c. Sube la imagen:**
 ```bash
-SQL_SERVER_HOST=sqlserver
-SQL_SERVER_PORT=1433
-SQL_SERVER_DATABASE=mi_base_de_datos
-SQL_SERVER_USER=sa
-SQL_SERVER_PASSWORD=TuPasswordSeguro123
+docker push <usuario_hub>/auth-app:1.0
 ```
 
-3. Construye y levanta los servicios:
+### 2. Bajar y ejecutar la imagen desde Docker Hub
+
+Una vez que la imagen está en Docker Hub, cualquiera puede bajarla y ejecutarla sin necesidad del código fuente.
+
+**a. Baja la imagen:**
+```bash
+docker pull <usuario_hub>/auth-app:1.0
+```
+
+**b. Ejecuta el contenedor:**
+Para ejecutar el contenedor, debes proporcionar las variables de entorno requeridas usando la opción `-e`.
+
+```bash
+docker run -d -p 5000:5000 \
+  -e SQL_SERVER_HOST='<ip_o_host_de_tu_db>' \
+  -e SQL_DATABASE='PruebaMicroServicios' \
+  -e SQL_USER='tu_usuario_db' \
+  -e SQL_PASSWORD='tu_password_db' \
+  -e JWT_SECRET_KEY='tu_clave_secreta_para_jwt' \
+  --name mi-auth-app \
+  <usuario_hub>/auth-app:1.0
+```
+
+**Explicación de los parámetros:**
+-   `-d`: Ejecuta el contenedor en segundo plano.
+-   `-p 5000:5000`: Mapea el puerto 5000 del host al puerto 5000 del contenedor.
+-   `-e VARIABLE='valor'`: Establece una variable de entorno.
+-   `--name mi-auth-app`: Asigna un nombre al contenedor para identificarlo fácilmente.
+
+---
+
+## Cambio de Base de Datos (de SQL Server a Sybase)
+
+El proyecto está preparado para cambiar la conexión a Sybase. Sigue estos pasos:
+
+### 1. Modificar el `Dockerfile`
+
+Cambia el driver de la base de datos comentando el de SQL Server y descomentando el de Sybase (FreeTDS).
+
+```dockerfile
+# --- DRIVER PARA SQL SERVER (ACTUAL) ---
+# Comenta estas líneas para desactivar
+# RUN apt-get update && apt-get install -y unixodbc-dev
+# RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+# ... (resto de líneas de msodbcsql18)
+
+# --- DRIVER PARA SYBASE (ALTERNATIVA) ---
+# Descomenta esta línea para activar
+RUN apt-get update && apt-get install -y freetds-dev freetds-bin unixodbc-dev
+```
+
+### 2. Modificar `database/database.py`
+
+Ajusta el bloque de código que establece la conexión.
+
+```python
+# --- CONEXIÓN A SQL SERVER (ACTUAL) ---
+# Comenta todo este bloque para desactivar
+# server = os.getenv('SQL_SERVER_HOST')
+# ...
+
+# --- CONEXIÓN A SYBASE (ALTERNATIVA) ---
+# Descomenta todo este bloque para activar
+server = os.getenv('SYBASE_HOST')
+database = os.getenv('SYBASE_DB')
+username = os.getenv('SYBASE_USER')
+password = os.getenv('SYBASE_PASSWORD')
+port = os.getenv('SYBASE_PORT', '5000')
+driver = '{FreeTDS}'
+connection_string = f'DRIVER={driver};SERVER={server};PORT={port};DATABASE={database};UID={username};PWD={password};TDS_Version=5.0;'
+db_connection = pyodbc.connect(connection_string)
+print("Conexión a Sybase establecida exitosamente.")
+```
+
+### 3. Actualizar el archivo `.env`
+
+Asegúrate de que tu archivo `.env` contenga las variables para Sybase:
+
+```bash
+# Variables para Sybase
+SYBASE_HOST=tu_host_sybase
+SYBASE_DB=tu_db_sybase
+SYBASE_USER=tu_usuario_sybase
+SYBASE_PASSWORD=tu_password_sybase
+SYBASE_PORT=5000 # O el puerto que corresponda
+```
+
+### 4. Reconstruir la imagen de Docker
+
+Finalmente, reconstruye la imagen para aplicar los cambios:
+
 ```bash
 docker-compose up --build
 ```
-
-## Uso de la Aplicación
-
-Una vez que los servicios estén corriendo, la aplicación estará disponible en:
-- `http://localhost:5000`
-
-### Endpoints disponibles:
-
-#### 1. Registro de Usuario
-- **POST `/auth/register`**
-  - **Body**:
-    ```json
-    {
-        "email": "usuario@empresa.com",
-        "password": "contraseña_segura"
-    }
-    ```
-  - **Respuesta**:
-    ```json
-    {
-        "message": "Usuario registrado exitosamente"
-    }
-    ```
-
-#### 2. Login
-- **POST `/auth/login`**
-  - **Body**:
-    ```json
-    {
-        "email": "importador.activo@empresa.com",
-        "password": "hash_de_prueba_123"
-    }
-    ```
-  - **Respuesta**:
-    ```json
-    {
-        "access_token": "eyJhbGciOiJIUzI1NiIsInT5cCI6IkpXVCJ9..."
-    }
-    ```
-
-#### 3. Recurso Protegido
-- **GET `/auth/protected`**
+- **GET `http://localhost:5000/auth/protected`**
   - **Headers**:
     ```
     Authorization: Bearer eyJhbGciOiJIUzI1NiIsInT5cCI6IkpXVCJ9...
@@ -108,6 +167,162 @@ Una vez que los servicios estén corriendo, la aplicación estará disponible en
     {
         "message": "Acceso concedido"
     }
+    ```
+
+### Endpoints de Consulta (`/query`)
+
+Todos los endpoints de consulta requieren autenticación vía JWT. El `ruc_cliente` se obtiene del token.
+
+#### 1. Consulta de Booking
+- **GET `/query/booking`**
+  - **Parámetros (Query String):**
+    - `booking_id`: El ID del booking a consultar.
+  - **Request:**
+    ```bash
+    curl -X GET 'http://localhost:5000/query/booking?booking_id=BK-001' \
+      -H "Authorization: Bearer <token>"
+    ```
+  - **Response (200 OK):**
+    ```json
+    {
+        "booking_id": "BK-001",
+        "buque": "Buque Ejemplo",
+        "contenedores": "CONT1, CONT2",
+        "dae": "DAE-001",
+        "estados": "Activo",
+        "id": 1,
+        "inspecciones": "Ninguna",
+        "mrn": "MRN-123",
+        "puerto_destino": "Puerto Destino A",
+        "ruc_cliente": "12345678901",
+        "tipo_carga": "Carga General"
+    }
+    ```
+
+#### 2. Consulta de Contenedor de Importación
+- **GET `/query/container/import`**
+  - **Parámetros (Query String):**
+    - `numero_contenedor`: El número del contenedor.
+  - **Request:**
+    ```bash
+    curl -X GET 'http://localhost:5000/query/container/import?numero_contenedor=CONT-IMPO-001' \
+      -H "Authorization: Bearer <token>"
+    ```
+  - **Response (200 OK):**
+    ```json
+    {
+        "aforos": "Aforo Físico",
+        "almacenaje": "Bodega 5",
+        "despacho": "Despachado",
+        "dress": "DRESS-01",
+        "eventos": "Llegada, Descarga",
+        "fecha_llegada": "Wed, 03 Jul 2024 00:26:30 GMT",
+        "mrn": "MRN-456",
+        "peso": 1500.50,
+        "puerto": "Puerto Origen B"
+    }
+    ```
+
+#### 3. Consulta de Contenedor de Exportación
+- **GET `/query/container/export`**
+  - **Parámetros (Query String):**
+    - `numero_contenedor`: El número del contenedor.
+  - **Request:**
+    ```bash
+    curl -X GET 'http://localhost:5000/query/container/export?numero_contenedor=CONT-EXPO-001' \
+      -H "Authorization: Bearer <token>"
+    ```
+  - **Response (200 OK):**
+    ```json
+    {
+        "conexiones": "Conexión Eléctrica",
+        "dae": "DAE-002",
+        "disv": "DISV-02",
+        "estados": "Listo para embarque",
+        "fecha_embarque": "Wed, 03 Jul 2024 00:26:30 GMT",
+        "roleo": "No"
+    }
+    ```
+
+#### 4. Consulta de BL de Carga Suelta
+- **GET `/query/bl-loose-cargo`**
+  - **Parámetros (Query String):**
+    - `numero_bl`: El número del Bill of Lading.
+  - **Request:**
+    ```bash
+    curl -X GET 'http://localhost:5000/query/bl-loose-cargo?numero_bl=BL-CS-001' \
+      -H "Authorization: Bearer <token>"
+    ```
+  - **Response (200 OK):**
+    ```json
+    {
+        "almacenaje": "Patio 3",
+        "bultos": 50,
+        "contenedor_desconsolidacion": "CONT-DESC-01",
+        "despacho": "En proceso",
+        "peso": 500.75,
+        "tarja": "TARJA-123"
+    }
+    ```
+
+#### 5. Consulta de Aforos
+- **Por BL:** `GET /query/aforo/bl?numero_bl=<numero_bl>`
+- **Por Contenedor:** `GET /query/aforo/container?numero_contenedor=<numero_contenedor>`
+  - **Response (200 OK):**
+    ```json
+    [
+        {
+            "estado": "Programado",
+            "fecha_programacion": "Wed, 03 Jul 2024 00:26:30 GMT",
+            "id": 1,
+            "numero_bl": "BL-CS-001",
+            "numero_contenedor": null,
+            "ruc_cliente": "12345678901",
+            "tipo_aforo": "Aforo Físico"
+        }
+    ]
+    ```
+
+#### 6. Consulta de Inspecciones
+- **Por Booking:** `GET /query/inspection/booking?booking_id=<booking_id>`
+- **Por Contenedor:** `GET /query/inspection/container?numero_contenedor=<numero_contenedor>`
+  - **Response (200 OK):**
+    ```json
+    [
+        {
+            "booking_id": "BK-001",
+            "estado": "Solicitado",
+            "fecha_inspeccion": "Wed, 03 Jul 2024 00:26:30 GMT",
+            "id": 1,
+            "numero_contenedor": null,
+            "requerimiento": "Inspección de Antinarcóticos",
+            "ruc_cliente": "12345678901"
+        }
+    ]
+    ```
+
+#### 7. Consulta de Tarjas (Carga Suelta)
+- **GET `/query/tally`**
+  - **Parámetros (Query String):**
+    - `numero_bl`: El número del Bill of Lading.
+  - **Request:**
+    ```bash
+    curl -X GET 'http://localhost:5000/query/tally?numero_bl=BL-CS-001' \
+      -H "Authorization: Bearer <token>"
+    ```
+  - **Response (200 OK):**
+    ```json
+    [
+        {
+            "bultos": 10,
+            "descripcion": "Cajas de repuestos",
+            "id": 1,
+            "numero_bl": "BL-CS-001",
+            "numero_tarja": "TARJA-CS-001",
+            "peso": 100.50,
+            "ruc_cliente": "12345678901"
+        }
+    ]
     ```
 
 ### Ejemplo de Uso con un Usuario Existente

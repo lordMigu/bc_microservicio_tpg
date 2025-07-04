@@ -7,16 +7,21 @@ FROM python:3.11-slim
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 
-# Instalar dependencias necesarias para Python
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-pip \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Actualizar e instalar dependencias del sistema para el driver ODBC de Microsoft
+# --- DRIVER PARA SQL SERVER (ACTUAL) ---
+# Descomentar estas líneas para usar el driver oficial de Microsoft para SQL Server
+RUN apt-get update && apt-get install -y curl gnupg && \
+    curl -sSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl -sSL -O https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm packages-microsoft-prod.deb && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Configurar FreeTDS
-RUN echo "[global]" > /etc/freetds/freetds.conf && \
-    echo "tds version = 7.2" >> /etc/freetds/freetds.conf && \
-    echo "client charset = UTF-8" >> /etc/freetds/freetds.conf
+# --- DRIVER PARA SYBASE (ALTERNATIVA) ---
+# Descomentar esta línea para usar FreeTDS (compatible con Sybase) y comentar las de SQL Server
+# RUN apt-get update && apt-get install -y freetds-dev freetds-bin unixodbc-dev
 
 # Instalación de Dependencias de Python
 COPY requirements.txt .
@@ -28,8 +33,5 @@ COPY . .
 # Configuración de Red
 EXPOSE 5000
 
-# Copiar script de espera
-COPY wait-for-sqlserver.py .
-
 # Comando de Ejecución
-CMD ["sh", "-c", "python wait-for-sqlserver.py && python -m flask run --host=0.0.0.0 --port=5000"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]

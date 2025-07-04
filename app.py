@@ -26,6 +26,7 @@ def create_app():
     from services.statistics.routes import statistics_bp
     from services.notifications.routes import notifications_bp
     from services.financial.routes import financial_bp
+    from services.query.routes import query_bp
 
     # Registrar los blueprints con sus respectivos prefijos URL
     # Cada servicio tiene su propio espacio de nombres en la URL
@@ -37,6 +38,7 @@ def create_app():
     app.register_blueprint(statistics_bp, url_prefix='/statistics')
     app.register_blueprint(notifications_bp, url_prefix='/notifications')
     app.register_blueprint(financial_bp, url_prefix='/financial')
+    app.register_blueprint(query_bp, url_prefix='/query')
 
     return app
 

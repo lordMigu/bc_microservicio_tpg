@@ -1,38 +1,10 @@
 version: '3.8'
 
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=YourStrongPassword@2025
-      - MSSQL_DATABASE=PruebaMicroServicios
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver_data:/var/opt/mssql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    command: /opt/mssql/bin/sqlservr
-    healthcheck:
-      test: ["CMD-SHELL", "sqlcmd -S localhost -U sa -P 'YourStrongPassword@2025' -Q 'SELECT 1' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
   app:
     build: .
     ports:
       - "5000:5000"
-    environment:
-      - SQL_SERVER_HOST=172.18.0.2
-      - SQL_SERVER_PORT=1433
-      - SQL_SERVER_DATABASE=PruebaMicroServicios
-      - SQL_SERVER_USER=sa
-      - SQL_SERVER_PASSWORD=YourStrongPassword@2025
-      - JWT_SECRET_KEY=tu-clave-secreta-de-jwt
-    depends_on:
-      - sqlserver
+    env_file:
+      - .env
 
-volumes:
-  sqlserver_data:
