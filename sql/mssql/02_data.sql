@@ -12,8 +12,11 @@ GO
 
 -- Insertar datos de prueba
 -- (Asegúrate de que los RUC coincidan con los usuarios de prueba)
-INSERT INTO Bookings (booking_id, ruc_cliente, buque, mrn, puerto_destino, tipo_carga, contenedores, estados, dae, inspecciones)
-VALUES ('BK-001', '12345678901', 'Buque Ejemplo', 'MRN-123', 'Puerto Destino A', 'Carga General', 'CONT1, CONT2', 'Activo', 'DAE-001', 'Ninguna');
+INSERT INTO Bookings (
+    numero_bl,                  buque,              puerto_origen,   fecha_eta,                  fecha_descarga,            mrn,                           puerto_destino,    tipo_carga,  tipo_contenedor,  ruc_cliente,    total_contenedores,  total_contenedores_20,  total_contenedores_40,  unidades_facturadas,  cont_programados_aforo,  numero_contenedor,  tipo_contenedor,  fecha_confirmacion_ecuapass,  numero_dress,  fecha_salida,             tamaño_contenedor,  programacion_aforo_fisica,  programacion_rayos_x,  contenedor_facturado,  email
+) VALUES (
+    'HLCUSS5241210674',        'SEASPAN BREEZE',   'BRAZIL',        '2025-02-02 21:00:00',     '2025-02-02 21:00:00',     'CEC2025-HLCU0026-9064-0000',    NULL,              'Seca',      'Full',            '0123456789123',  10,                  5,                      5,                      100,                   5,                     'CONT-IMPO-001',    '20FT',           '2025-02-02 21:00:00',         'DRESS-01',    '2025-02-03 10:00:00',  20,                     1,                        0,                      1,                    'test@example.com'
+);
 
 INSERT INTO Contenedores (numero_contenedor, tipo_importacion, ruc_cliente, peso, puerto, mrn, fecha_llegada, dress, eventos, aforos, almacenaje, despacho)
 VALUES ('CONT-IMPO-001', 1, '12345678901', 1500.50, 'Puerto Origen B', 'MRN-456', GETDATE(), 'DRESS-01', 'Llegada, Descarga', 'Aforo Físico', 'Bodega 5', 'Despachado');

@@ -27,28 +27,34 @@ BEGIN
 END;
 GO
 
--- Modificar tabla de usuarios para añadir ruc_cliente
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE Name = N'ruc_cliente' AND Object_ID = Object_ID(N'usuarios'))
-BEGIN
-    ALTER TABLE usuarios ADD ruc_cliente NVARCHAR(20);
-END;
-GO
-
 -- Crear tabla de Bookings
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Bookings]') AND type in (N'U'))
 BEGIN
     CREATE TABLE Bookings (
-        id INT PRIMARY KEY IDENTITY(1,1),
-        booking_id NVARCHAR(50) NOT NULL UNIQUE,
-        ruc_cliente NVARCHAR(20) NOT NULL,
+        numero_bl NVARCHAR(50) PRIMARY KEY,
         buque NVARCHAR(100),
+        puerto_origen NVARCHAR(100),
+        fecha_eta DATETIME2(0), -- Formato: YYYY-MM-DD HH:MM:SS
+        fecha_descarga DATETIME2(0), -- Formato: YYYY-MM-DD HH:MM:SS
         mrn NVARCHAR(50),
         puerto_destino NVARCHAR(100),
         tipo_carga NVARCHAR(50),
-        contenedores NVARCHAR(MAX),
-        estados NVARCHAR(100),
-        dae NVARCHAR(50),
-        inspecciones NVARCHAR(100)
+        tipo_contenedor NVARCHAR(50),
+        ruc_cliente NVARCHAR(20) NOT NULL,
+        total_contenedores INT,
+        total_contenedores_20 INT,
+        total_contenedores_40 INT,
+        unidades_facturadas INT,
+        cont_programados_aforo INT,
+        numero_contenedor NVARCHAR(50),
+        tipo_contenedor NVARCHAR(50),
+        fecha_confirmacion_ecuapass DATETIME2(0), -- Formato: YYYY-MM-DD HH:MM:SS
+        numero_dress NVARCHAR(50),
+        fecha_salida DATETIME2(0), -- Formato: YYYY-MM-DD HH:MM:SS
+        tamaño_contenedor INT,
+        programacion_aforo_fisica BIT, -- 1 para Sí, 0 para No
+        programacion_rayos_x BIT, -- 1 para Sí, 0 para No
+        contenedor_facturado BIT -- 1 para Sí, 0 para No
     );
 END;
 GO

@@ -2,7 +2,6 @@
 Configura y registra todos los servicios de la aplicación"""
 
 from flask import Flask
-from flask_jwt_extended import JWTManager
 from config import Config
 
 def create_app():
@@ -13,32 +12,26 @@ def create_app():
     app = Flask(__name__)
     # Carga la configuración desde el archivo config.py y lo hace global para que pueda ser accedido desde cualquier parte de la aplicación
     app.config.from_object(Config)
-    # Inicializa el manejador JWT para la autenticación
-    jwt = JWTManager(app)
 
     # Importar y registrar blueprints
     # Cada servicio tiene su propio blueprint con rutas específicas
-    from services.auth.routes import auth_bp
-    from services.traceability.importer import traceability_importer_bp
-    from services.traceability.exporter import traceability_exporter_bp
-    from services.complementary_services.importer import complementary_importer_bp
-    from services.complementary_services.exporter import complementary_exporter_bp
-    from services.statistics.routes import statistics_bp
-    from services.notifications.routes import notifications_bp
-    from services.financial.routes import financial_bp
-    from services.query.routes import query_bp
+    from services.order_service.notificaciones import notifications_bp
+    from services.payment_service.gestion_financiera import finanzas_bp
+    from services.order_service.servicios_complementarios import servicios_complementarios_bp
+    from services.order_service.consultas import consulta_info_bp
+    from services.order_service.auxiliares import auxiliares_bp
+    from services.payment_service.tarifarios import tarifarios_bp
+    from services.order_service.aforo_inspeccion import aforo_inspeccion_bp
 
     # Registrar los blueprints con sus respectivos prefijos URL
     # Cada servicio tiene su propio espacio de nombres en la URL
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(traceability_importer_bp, url_prefix='/traceability/importer')
-    app.register_blueprint(traceability_exporter_bp, url_prefix='/traceability/exporter')
-    app.register_blueprint(complementary_importer_bp, url_prefix='/complementary-services/importer')
-    app.register_blueprint(complementary_exporter_bp, url_prefix='/complementary-services/exporter')
-    app.register_blueprint(statistics_bp, url_prefix='/statistics')
     app.register_blueprint(notifications_bp, url_prefix='/notifications')
-    app.register_blueprint(financial_bp, url_prefix='/financial')
-    app.register_blueprint(query_bp, url_prefix='/query')
+    app.register_blueprint(finanzas_bp, url_prefix='/finanzas')
+    app.register_blueprint(servicios_complementarios_bp, url_prefix='/servicios_complementarios')
+    app.register_blueprint(consulta_info_bp, url_prefix='/consulta_info')
+    app.register_blueprint(auxiliares_bp, url_prefix='/auxiliares')
+    app.register_blueprint(tarifarios_bp, url_prefix='/tarifarios')
+    app.register_blueprint(aforo_inspeccion_bp, url_prefix='/aforo_inspeccion')
 
     return app
 
