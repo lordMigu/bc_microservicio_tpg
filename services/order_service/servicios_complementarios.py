@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from services.utils import execute_sp, service_response
 from loguru import logger
 
-logger.add("app.log",
+logger.add("servicios_complementarios.log",
     rotation="1 day",
     retention="7 days",
 )

@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from services.utils import execute_sp, service_response
 from loguru import logger
 
-logger.add("app.log",
+logger.add("aforo_inspeccion.log",
     rotation="1 day",
     retention="7 days",
 )
@@ -23,8 +23,6 @@ def consulta_aforos_inspecciones():
     logger.info(f"Result: {result}")
     logger.info(f"Error: {error}")
     return service_response(result, error)
-
-aforo_inspeccion_bp = Blueprint('aforo_inspeccion', __name__)
 
 # API-TPG Servicio_Consulta_Programacion_Aforo_BL
 # Purpose: Get scheduled survey information for a Bill of Lading

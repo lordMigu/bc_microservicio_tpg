@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from services.utils import execute_sp, service_response
 from loguru import logger
 
-logger.add("app.log", # Archivo de log
+logger.add("consultas.log", # Archivo de log
     rotation="1 day",      # Rota el archivo cada día
     retention="7 days", # Retiene los últimos 7 días
     )

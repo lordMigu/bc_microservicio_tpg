@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from services.utils import service_response, execute_sp
 from loguru import logger
 
-logger.add("app.log",
+logger.add("notificaciones.log",
     rotation="1 day",
     retention="7 days",
 )
