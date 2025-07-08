@@ -44,18 +44,18 @@ FLASK_APP=app.py
 FLASK_ENV=development
 
 # Configuración de SQL Server (comentada por defecto)
-SQL_SERVER_HOST=localhost
-SQL_SERVER_PORT=1433
-SQL_SERVER_DATABASE=mi_base_de_datos
-SQL_SERVER_USER=
-SQL_SERVER_PASSWORD=
+# SQL_SERVER_HOST=localhost
+# SQL_SERVER_PORT=1433
+# SQL_SERVER_DATABASE=mi_base_de_datos
+# SQL_SERVER_USER=
+# SQL_SERVER_PASSWORD=
 
 # Configuración de Sybase (descomentada por defecto)
-# SYBASE_HOST=localhost
-# SYBASE_PORT=5000
-# SYBASE_DATABASE=mi_base_de_datos
-# SYBASE_USER=
-# SYBASE_PASSWORD=
+SYBASE_HOST=localhost
+SYBASE_PORT=5000
+SYBASE_DATABASE=mi_base_de_datos
+SYBASE_USER=
+SYBASE_PASSWORD=
 
 # Configuración JWT (opcional)
 # JWT_SECRET_KEY=tu-clave-secreta-de-jwt
