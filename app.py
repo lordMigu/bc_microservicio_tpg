@@ -15,7 +15,7 @@ def create_app():
 
     # Importar y registrar blueprints
     # Cada servicio tiene su propio blueprint con rutas específicas
-    from services.order_service.notificaciones import notifications_bp
+    from services.order_service.notificaciones import notificaciones_bp
     from services.payment_service.gestion_financiera import finanzas_bp
     from services.order_service.servicios_complementarios import servicios_complementarios_bp
     from services.order_service.consultas import consulta_info_bp
@@ -25,7 +25,7 @@ def create_app():
 
     # Registrar los blueprints con sus respectivos prefijos URL
     # Cada servicio tiene su propio espacio de nombres en la URL
-    app.register_blueprint(notifications_bp, url_prefix='/notifications')
+    app.register_blueprint(notificaciones_bp, url_prefix='/notifications')
     app.register_blueprint(finanzas_bp, url_prefix='/finanzas')
     app.register_blueprint(servicios_complementarios_bp, url_prefix='/servicios_complementarios')
     app.register_blueprint(consulta_info_bp, url_prefix='/consulta_info')
