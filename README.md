@@ -28,9 +28,9 @@ Para configurar la base de datos, siga estos pasos:
 
 1. **Seleccione su gestor de base de datos** y descomente la línea correspondiente en los siguientes archivos:
    - `.env`
-   - `docker-compose.yml`
    - `config.py`
    - `Dockerfile`
+   - `database/database.py`
 
 2. Comente las líneas de los otros gestores de base de datos que no vaya a utilizar.
 
@@ -43,19 +43,19 @@ Cree un archivo `.env` en la raíz del proyecto con las siguientes variables:
 FLASK_APP=app.py
 FLASK_ENV=development
 
-# Configuración de SQL Server (descomentada por defecto)
+# Configuración de SQL Server (comentada por defecto)
 SQL_SERVER_HOST=localhost
 SQL_SERVER_PORT=1433
 SQL_SERVER_DATABASE=mi_base_de_datos
-SQL_SERVER_USER=sa
+SQL_SERVER_USER=
 SQL_SERVER_PASSWORD=
 
-# Configuración de Sybase (comentada por defecto)
+# Configuración de Sybase (descomentada por defecto)
 # SYBASE_HOST=localhost
 # SYBASE_PORT=5000
-# SYBASE_DATABASE=PruebaMicroServicios
-# SYBASE_USER=sa
-# SYBASE_PASSWORD=12345678
+# SYBASE_DATABASE=mi_base_de_datos
+# SYBASE_USER=
+# SYBASE_PASSWORD=
 
 # Configuración JWT (opcional)
 # JWT_SECRET_KEY=tu-clave-secreta-de-jwt
@@ -65,15 +65,29 @@ SQL_SERVER_PASSWORD=
 
 Asegúrese de que los stored procedures estén creados en su base de datos con los parámetros exactos. Los parámetros deben coincidir exactamente en nombre, tipo y orden con los definidos en los procedimientos almacenados.
 
-Ejemplo para SQL Server:
+Ejemplo:
 ```sql
-CREATE PROCEDURE sp_autenticar_usuario
+CREATE PROCEDURE sp_ruta_del_endpoint
     @usuario NVARCHAR(100),
     @contrasena NVARCHAR(255)
 AS
 BEGIN
     -- Lógica del procedimiento
 END
+
+'usuario' debe coincidir con el 'usuario' del microservicio
+'contrasena' debe coincidir con la 'contrasena' del microservicio
+
+Ejemplo para /inspeccion_contenedor_expo de /services/order_service/aforo_inspeccion.py
+
+@aforo_inspeccion_bp.route('/ruta_del_endpoint', methods=['GET'])
+def ruta_del_endpoint():
+    try:
+        params = {
+            ...
+            'usuario': request.args.get('usuario') /*'usuario' del procedimiento debe coincidir con este 'usuario'*/
+            'contrasena': request.args.get('contrasena') /*'contrasena' del procedimiento debe coincidir con esta 'contrasena'*/
+        }
 ```
 
 ### 4. Configuración de Docker
@@ -83,7 +97,7 @@ Asegúrese de que el archivo `Dockerfile` tenga la configuración correcta para 
 ## Requisitos Previos
 
 - **Docker y Docker Compose**: Para construir y ejecutar la aplicación en un contenedor.
-- **Cliente SQL**: Una herramienta como SAP ASE 16 o SQL Server Management Studio. (Dependiendo de la base de datos que desees usar debe comentar la línea de la base de datos que no deseas usar en los archivos .env, docker-compose.yml, config.py y Dockerfile y descomentar la línea de la base de datos que deseas usar)
+- **Cliente SQL**: Una herramienta como SAP ASE 16 o SQL Server Management Studio. (Dependiendo de la base de datos que desees usar debe comentar la línea de la base de datos que no deseas usar en los archivos database/database.py, env, docker-compose.yml, config.py y Dockerfile y descomentar la línea de la base de datos que deseas usar)
 - **Postman o similar**: Para probar los endpoints de la API.
 
 ---
@@ -92,13 +106,7 @@ Asegúrese de que el archivo `Dockerfile` tenga la configuración correcta para 
 
 ### 1. Configuración Inicial
 
-1. **Clonar el repositorio** (si aún no lo ha hecho):
-   ```bash
-   git clone [URL_DEL_REPOSITORIO]
-   cd auth_login_docker-main
-   ```
-
-2. **Configurar el archivo .env** como se describe en la sección de Variables de Entorno.
+1. **Configurar el archivo .env** como se describe en la sección de Variables de Entorno.
 
 ### 2. Despliegue con Docker
 
@@ -124,7 +132,7 @@ Puede probar los endpoints usando cURL o Postman:
 
 ```bash
 # Ejemplo de consumo
-endpoint [GET]: http://0.0.0.0:5000/consulta_info/info_bl?numero_bl=HLCUSS524I210674
+endpoint [GET]: http://localhost:5000/notificaciones
 
 ```
 

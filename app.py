@@ -1,7 +1,7 @@
 """Archivo principal de la aplicación Flask
 Configura y registra todos los servicios de la aplicación"""
 
-from flask import Flask
+from flask import Flask, jsonify
 from config import Config
 
 def create_app():
@@ -32,6 +32,16 @@ def create_app():
     app.register_blueprint(auxiliares_bp, url_prefix='/auxiliares')
     app.register_blueprint(tarifarios_bp, url_prefix='/tarifarios')
     app.register_blueprint(aforo_inspeccion_bp, url_prefix='/aforo_inspeccion')
+
+    # --- Endpoint de Healthcheck para Docker ---
+    # Esta ruta es utilizada por la instrucción HEALTHCHECK en el Dockerfile
+    # para verificar que la aplicación está funcionando correctamente.
+    @app.route('/health')
+    def health():
+        """
+        Devuelve una respuesta JSON simple con estado 200 OK.
+        """
+        return jsonify({'status': 'ok'}), 200
 
     return app
 
