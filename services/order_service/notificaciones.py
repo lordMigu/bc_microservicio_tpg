@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from services.utils import service_response, execute_sp
+from services.utils import service_response, execute_sp, require_params
 from loguru import logger
 
 logger.add("notificaciones.log",
@@ -31,22 +31,19 @@ def notificaciones():
 def get_notifications():
     """
     Este endpoint consulta y devuelve todas las notificaciones para el usuario autenticado.
-    La integración se realiza mediante una llamada a la API "API-TPG Notificaciones_a_usuarios". 
+    La integración se realiza mediante una llamada a la API "API-TPG Notificaciones_a_usuarios".
     """
-    # Integración: Llamado al “API-TPG Notificaciones_a_usuarios” 
-    # Lógica para obtener notificaciones
-    # Esto podría involucrar llamadas a Salesforce u otros sistemas TPG
     try:
         params = {
-            'usuario': request.args.get('usuario', ''),
+            'usuario': request.args.get('usuario'),
             'fecha_desde': request.args.get('fecha_desde', ''),
             'fecha_hasta': request.args.get('fecha_hasta', '')
         }
         logger.info(f"Params: {params}")
-        result, error = execute_sp('sp_consulta_notificaciones', params)
-        logger.info(f"Result: {result}")
-        logger.info(f"Error: {error}")
+        result, error = execute_sp('sp_consulta_notificaciones', params, single_row=False)
         return service_response(result, error)
+
     except Exception as e:
-        logger.error(f"Error en get_notifications: {str(e)}")
-        return service_response(None, str(e))
+        logger.error(f"Error inesperado en get_notifications: {str(e)}")
+        # Devuelve código 3 para error interno
+        return service_response(None, str(e), custom_code=3)

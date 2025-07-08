@@ -1,5 +1,6 @@
 from database.database import get_db
-from flask import jsonify
+from flask import jsonify, request
+from functools import wraps
 
 def execute_sp(sp_name, params, single_row=True):
     """
@@ -43,24 +44,57 @@ def execute_sp(sp_name, params, single_row=True):
         return None, str(e)
 
 
-def service_response(data, error=None, success_http=200, error_http=404):
-    """Construye una respuesta estándar para los servicios.
+def service_response(data, error=None, custom_code=None, http_status=None):
+    """Construye una respuesta estándar para los servicios con códigos personalizados.
 
-    Éxito: devuelve JSON {"code": 0, "data": data} con HTTP 200 (o el que indiques).
-    Error  : devuelve JSON {"code": error_http, "message": error} con el código HTTP correspondiente.
+    Códigos personalizados:
+    - 0: Éxito con datos.
+    - 1: No se encontraron datos.
+    - 2: Parámetros de solicitud inválidos (Bad Request).
+    - 3: Error interno del servidor.
     """
-    if error or data in (None, [], {}):
-        # Si no hay datos o hay un mensaje de error
-        return jsonify({
-            "code": error_http,
-            "message": error or "Sin resultados"
-        }), error_http
+    response = {}
+    status_code = 200
 
-    # Éxito
-    return jsonify({
-        "code": 0,
-        "data": data
-    }), success_http
+    if error:
+        # Si el código es 2, es un Bad Request
+        if custom_code == 2:
+            status_code = http_status or 400
+        # Si no hay datos, es un Not Found
+        elif "No se encontraron datos" in error:
+            status_code = http_status or 404
+            custom_code = 1 # Forzar código 1
+        # Cualquier otro error es un error de servidor
+        else:
+            status_code = http_status or 500
+            custom_code = 3 # Forzar código 3
+        
+        response['code'] = custom_code
+        response['message'] = error
+
+    elif data is not None and data != []:
+        status_code = http_status or 200
+        response['code'] = 0
+        response['data'] = data
+    else:
+        status_code = http_status or 404
+        response['code'] = 1
+        response['message'] = "No se encontraron datos."
+
+    return jsonify(response), status_code
+
+def require_params(*required_args):
+    """Decorador para validar que los parámetros requeridos están en la solicitud."""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            missing_params = [arg for arg in required_args if arg not in request.args or not request.args.get(arg)]
+            if missing_params:
+                error_msg = f"Parámetros requeridos faltantes o vacíos: {', '.join(missing_params)}"
+                return service_response(None, error_msg, custom_code=2)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 # Version anterior de execute_sp (estable)
 # def execute_sp(sp_name, params, single_row=True):
