@@ -63,7 +63,9 @@ SYBASE_PASSWORD=
 
 ### 3. Configuración de Stored Procedures
 
-Asegúrese de que los stored procedures estén creados en su base de datos con los parámetros exactos. Los parámetros deben coincidir exactamente en nombre, tipo y orden con los definidos en los procedimientos almacenados.
+Asegúrese de que los stored procedures estén creados en su base de datos con los parámetros exactos. Los parámetros deben coincidir exactamente en nombre, tipo y orden con los definidos en los procedimientos almacenados. O, puede cambiar el nombre del parametro en el microservicio para que coincida con el nombre del procedimiento almacenado en la base de datos.
+
+Adicionalmente, el nombre del procedimiento almacenado en la base de datos debe coincidir exactamente con el primer parámetro de la función `execute_sp` en el código del microservicio. Por ejemplo, en `services/order_service/aforo_inspeccion.py` en la línea 24, la llamada a la función es `execute_sp('sp_consulta_aforos_inspecciones', ...)`, por lo que el procedimiento almacenado en la base de datos debe llamarse `sp_consulta_aforos_inspecciones`, o cambiar el nombre del parametro en el microservicio para que coincida con el nombre del procedimiento almacenado en la base de datos.
 
 Ejemplo:
 ```sql
